@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Page loader main script."""
 
 
