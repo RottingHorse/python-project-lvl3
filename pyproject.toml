@@ -10,12 +10,14 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.9"
+requests = "^2.27.1"
 
 [tool.poetry.dev-dependencies]
 autopep8 = "^1.6.0"
 pytest = "^6.2.5"
 pytest-cov = "^3.0.0"
 wemake-python-styleguide = "^0.16.0"
+requests-mock = "^1.9.3"
 
 [tool.poetry.scripts]
 page-loader = "page_loader.scripts.page_loader_script:main"
