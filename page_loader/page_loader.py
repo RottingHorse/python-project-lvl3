@@ -41,15 +41,15 @@ def _make_soup(url):
     return BeautifulSoup(response.text, 'html.parser')
 
 
-def _download_image(files_dir_path: str, link, url):
-    img_path = link['src']
+def _download_image(files_dir_path: str, img, url):
+    img_path = img['src']
     img_resp = requests.get(url + img_path)
     img_resp.raise_for_status()
     img_path = _make_name(url) + img_path.replace(SLASH, DASH)
     full_path = os.path.join(files_dir_path, img_path)
     with open(full_path, 'wb') as img_file:
         img_file.write(img_resp.content)
-    link['src'] = os.path.join(_make_name(url, DIR_SUFFIX), img_path)
+    img['src'] = os.path.join(_make_name(url, DIR_SUFFIX), img_path)
 
 
 def download(url: str, output: str = 'current') -> str:
@@ -68,8 +68,8 @@ def download(url: str, output: str = 'current') -> str:
         os.makedirs(files_dir_path)
 
     soup = _make_soup(url)
-    for link in soup.find_all('img'):
-        _download_image(files_dir_path, link, url.strip(SLASH))
+    for img in soup.find_all('img'):
+        _download_image(files_dir_path, img, url.strip(SLASH))
 
     with open(output_html_path, 'w') as out_file:
         out_file.write(soup.prettify())
