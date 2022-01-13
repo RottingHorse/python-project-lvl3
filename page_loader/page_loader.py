@@ -46,7 +46,6 @@ def _make_soup(url):
 def _download_image(files_dir_path: str, img, url):
     img_path = img[SRC]
     img_resp = requests.get(url + img_path)
-    img_resp.raise_for_status()
     img_path = _make_name(url) + img_path.replace(SLASH, DASH)
     full_path = os.path.join(files_dir_path, img_path)
     with open(full_path, 'wb') as img_file:
@@ -61,6 +60,8 @@ def _is_same_domain(link_url, page_url):
 
 
 def _generate_url(link, url):
+    if 'jquery' in link:
+        return None
     if not urlparse(link).scheme:
         return url + link
     if _is_same_domain(link, url):
@@ -69,12 +70,14 @@ def _generate_url(link, url):
 
 
 def _download_script(files_dir_path, script, url):
-    script_src = script[SRC]
+    try:
+        script_src = script[SRC]
+    except KeyError:
+        return
     script_url = _generate_url(script_src, url)
     if script_url is None:
         return
     script_resp = requests.get(script_url)
-    script_resp.raise_for_status()
     scr_path = _make_name(url) + urlparse(script_src).path.replace(SLASH, DASH)
     full_path = os.path.join(files_dir_path, scr_path)
     with open(full_path, 'w') as script_file:
@@ -88,7 +91,6 @@ def _download_link(files_dir_path, link, url):
     if link_url is None:
         return
     link_resp = requests.get(link_url)
-    link_resp.raise_for_status()
     link_path = _make_name(url) + link_href.replace(SLASH, DASH)
     if DOT not in link_path:
         link_path += HTML_SUFFIX
