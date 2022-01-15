@@ -1,5 +1,8 @@
 """Page loader."""
 import os
+import logging
+from logging import Formatter, StreamHandler
+import sys
 from urllib.parse import urlparse
 
 import requests
@@ -12,6 +15,13 @@ DOT = '.'
 DASH = '-'
 SRC = 'src'
 HREF = 'href'
+
+
+logger = logging.getLogger()
+logger.setLevel(logging.WARNING)
+handler = StreamHandler(stream=sys.stdout)
+handler.setFormatter(Formatter(fmt='%(message)s'))
+logger.addHandler(handler)
 
 
 def _make_name(url: str, end: str = '') -> str:
@@ -39,18 +49,11 @@ def _make_paths(output, url):
 
 def _make_soup(url):
     response = requests.get(url)
-    response.raise_for_status()
+    try:
+        response.raise_for_status()
+    except requests.HTTPError as e:
+        logger.error(e)
     return BeautifulSoup(response.text, 'html.parser')
-
-
-def _download_image(files_dir_path: str, img, url):
-    img_path = img[SRC]
-    img_resp = requests.get(url + img_path)
-    img_path = _make_name(url) + img_path.replace(SLASH, DASH)
-    full_path = os.path.join(files_dir_path, img_path)
-    with open(full_path, 'wb') as img_file:
-        img_file.write(img_resp.content)
-    img[SRC] = os.path.join(_make_name(url, DIR_SUFFIX), img_path)
 
 
 def _is_same_domain(link_url, page_url):
@@ -69,6 +72,25 @@ def _generate_url(link, url):
     return None
 
 
+def _download_image(files_dir_path: str, img, url):
+    img_path = img[SRC]
+    img_url = url + img_path
+    img_resp = requests.get(img_url)
+    try:
+        img_resp.raise_for_status()
+    except requests.HTTPError as e:
+        logger.error(e)
+    img_path = _make_name(url) + img_path.replace(SLASH, DASH)
+    full_path = os.path.join(files_dir_path, img_path)
+    try:
+        with open(full_path, 'wb') as img_file:
+            img_file.write(img_resp.content)
+    except OSError:
+        logger.error(f"Can't write to file {full_path}")
+    img[SRC] = os.path.join(_make_name(url, DIR_SUFFIX), img_path)
+    logger.warning(f'✔  {img_url}')
+
+
 def _download_script(files_dir_path, script, url):
     try:
         script_src = script[SRC]
@@ -78,11 +100,19 @@ def _download_script(files_dir_path, script, url):
     if script_url is None:
         return
     script_resp = requests.get(script_url)
+    try:
+        script_resp.raise_for_status()
+    except requests.HTTPError as e:
+        logger.error(e)
     scr_path = _make_name(url) + urlparse(script_src).path.replace(SLASH, DASH)
     full_path = os.path.join(files_dir_path, scr_path)
-    with open(full_path, 'w') as script_file:
-        script_file.write(script_resp.text)
+    try:
+        with open(full_path, 'w') as script_file:
+            script_file.write(script_resp.text)
+    except OSError:
+        logger.error(f"Can't write to file {full_path}")
     script[SRC] = os.path.join(_make_name(url, DIR_SUFFIX), scr_path)
+    logger.warning(f'✔  {script_url}')
 
 
 def _download_link(files_dir_path, link, url):
@@ -91,13 +121,21 @@ def _download_link(files_dir_path, link, url):
     if link_url is None:
         return
     link_resp = requests.get(link_url)
+    try:
+        link_resp.raise_for_status()
+    except requests.HTTPError as e:
+        logger.error(e)
     link_path = _make_name(url) + link_href.replace(SLASH, DASH)
     if DOT not in link_path:
         link_path += HTML_SUFFIX
     full_path = os.path.join(files_dir_path, link_path)
-    with open(full_path, 'w') as link_file:
-        link_file.write(link_resp.text)
+    try:
+        with open(full_path, 'w') as link_file:
+            link_file.write(link_resp.text)
+    except OSError:
+        logger.error(f"Can't write to file {full_path}")
     link[HREF] = os.path.join(_make_name(url, DIR_SUFFIX), link_path)
+    logger.warning(f'✔  {link_url}')
 
 
 def download(url: str, output: str = 'current') -> str:
@@ -113,7 +151,10 @@ def download(url: str, output: str = 'current') -> str:
     files_dir_path, output_html_path = _make_paths(output, url.strip(SLASH))
 
     if not os.path.exists(files_dir_path):
-        os.makedirs(files_dir_path)
+        try:
+            os.makedirs(files_dir_path)
+        except OSError:
+            logger.exception(f"Cant't create directory '{files_dir_path}'")
 
     soup = _make_soup(url)
     for img in soup.find_all('img'):
@@ -124,8 +165,9 @@ def download(url: str, output: str = 'current') -> str:
 
     for script in soup.find_all('script'):
         _download_script(files_dir_path, script, url.strip(SLASH))
-
-    with open(output_html_path, 'w') as out_file:
-        out_file.write(soup.prettify())
-
+    try:
+        with open(output_html_path, 'w') as out_file:
+            out_file.write(soup.prettify())
+    except OSError:
+        logger.error(f"Can't write to file {output_html_path}")
     return output_html_path

@@ -13,7 +13,8 @@ def main():
 
     args = parser.parse_args()
 
-    print(download(args.url, args.output))
+    file_path = download(args.url, args.output)
+    print(f"Page was successfully downloaded into '{file_path}'")
 
 
 if __name__ == '__main__':
