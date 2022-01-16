@@ -1,9 +1,14 @@
+import logging
 import os
 import tempfile
+from http import HTTPStatus
 
+import pytest
 import requests_mock
 
 from page_loader.page_loader import download
+
+logger = logging.getLogger()
 
 
 def get_content(path_to_file, flag='r'):
@@ -43,3 +48,20 @@ def test_page_loader():
             assert os.path.isfile(os.path.join(
                 tempdir, 'ru-hexlet-io_files',
                 'ru-hexlet-io-courses.html'))
+
+            with pytest.raises(SystemExit) as err:
+                download('https://ru.hexlet.io/', '/non_existing_dir')
+                assert err.value.code == 42
+            with pytest.raises(SystemExit) as err:
+                download('https://ru.hexlet.io/', '/opt')
+                assert err.value.code == 42
+
+
+def test_page_loader_with_errors(caplog):
+
+    with tempfile.TemporaryDirectory() as tempdir:
+        with requests_mock.Mocker() as mock:
+            mock.get('https://ru.hexlet.io', status_code=HTTPStatus.NOT_FOUND)
+            with caplog.at_level(logging.ERROR):
+                download('https://ru.hexlet.io', tempdir)
+            assert 'None for url' in caplog.text

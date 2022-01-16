@@ -1,9 +1,12 @@
 """IO module."""
 import os
+import sys
 from urllib.parse import urlparse
 
 from page_loader.constants import DASH, DIR_SUFFIX, DOT, HTML_SUFFIX, SLASH
 from page_loader.log import logger
+
+EXIT_CODE = 42
 
 
 def create_dir(files_dir_path: str):
@@ -16,7 +19,8 @@ def create_dir(files_dir_path: str):
         try:
             os.makedirs(files_dir_path)
         except OSError:
-            logger.exception(f"Cant't create directory '{files_dir_path}'")
+            logger.error(f"Cant't create directory '{files_dir_path}'")
+            sys.exit(EXIT_CODE)
 
 
 def make_name(url: str, end: str = '') -> str:
@@ -73,3 +77,4 @@ def write_to_file(file_path: str, web_content, flag: str = 'w'):
             out_file.write(web_content)
     except OSError:
         logger.error(f"Can't write to file {file_path}")
+        sys.exit(EXIT_CODE)
