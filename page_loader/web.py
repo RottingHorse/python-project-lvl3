@@ -15,6 +15,9 @@ from page_loader.constants import (
 )
 from page_loader.io import make_name, write_to_file
 from page_loader.log import logger
+from progress.bar import Bar
+
+PROGRESS = 25
 
 
 def _make_soup(url):
@@ -66,15 +69,21 @@ def _download_resource(file_path: str, tag, base_url, attr):
     res_url = _generate_url(res_path, base_url)
     if res_url is None:
         return
+    progress_bar = Bar(res_url, max=100)
+
     res_resp = _get_from_url(res_url)
+    progress_bar.next(PROGRESS)
     res_path = _make_file_name(res_path, tag, base_url)
+    progress_bar.next(PROGRESS)
     full_path = os.path.join(res_path, file_path, res_path)
     if tag.name == 'img':
         write_to_file(full_path, res_resp.content, flag='wb')
     else:
         write_to_file(full_path, res_resp.text)
+    progress_bar.next(PROGRESS)
     tag[attr] = os.path.join(make_name(base_url, DIR_SUFFIX), res_path)
-    logger.warning(f'✔  {res_url}')
+    progress_bar.next(PROGRESS)
+    progress_bar.finish()
 
 
 def do_all_work(url: str, files_dir_path: str) -> str:
