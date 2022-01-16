@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 from page_loader.constants import DASH, DIR_SUFFIX, DOT, HTML_SUFFIX, SLASH
 from page_loader.log import logger
 
-EXIT_CODE = 2
+EXIT_CODE = 42
 
 
 def create_dir(files_dir_path: str):
