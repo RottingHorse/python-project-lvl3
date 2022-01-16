@@ -53,10 +53,6 @@ def test_page_loader():
                 download('https://ru.hexlet.io/', '/non_existing_dir')
             assert err.value.code == 42
 
-            with pytest.raises(SystemExit) as err:
-                download('https://ru.hexlet.io/', '/opt')
-            assert err.value.code == 42
-
 
 def test_page_loader_with_errors(caplog):
 
