@@ -51,10 +51,10 @@ def test_page_loader():
 
             with pytest.raises(SystemExit) as err:
                 download('https://ru.hexlet.io/', '/non_existing_dir')
-                assert err.value.code == 42
+                assert err.value.code == 2
             with pytest.raises(SystemExit) as err:
                 download('https://ru.hexlet.io/', '/opt')
-                assert err.value.code == 42
+                assert err.value.code == 2
 
 
 def test_page_loader_with_errors(caplog):
