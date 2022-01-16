@@ -4,6 +4,7 @@ import tempfile
 from http import HTTPStatus
 
 import pytest
+import requests
 import requests_mock
 
 from page_loader.page_loader import download
@@ -55,10 +56,23 @@ def test_page_loader():
 
 
 def test_page_loader_with_errors(caplog):
-
     with tempfile.TemporaryDirectory() as tempdir:
         with requests_mock.Mocker() as mock:
             mock.get('https://ru.hexlet.io', status_code=HTTPStatus.NOT_FOUND)
             with caplog.at_level(logging.ERROR):
                 download('https://ru.hexlet.io', tempdir)
             assert 'None for url' in caplog.text
+
+
+def test_bad_url():
+    with tempfile.TemporaryDirectory() as tempdir:
+        with requests_mock.Mocker() as mock:
+            invalid_url = 'https://badsite.com'
+            mock.get(invalid_url, exc=requests.exceptions.ConnectionError)
+
+            assert not os.listdir(tempdir)
+
+            with pytest.raises(Exception):
+                download(invalid_url, tempdir)
+
+            assert not os.listdir(tempdir)
