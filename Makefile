@@ -3,16 +3,16 @@ install:
 
 uninstall:
 	pip uninstall hexlet-code
-	
+
 page-loader:
-	poetry run page-loader
+	poetry run page-loader -h
 
 publish:
 	poetry publish --dry-run
-	
+
 package-install:
 	python3 -m pip install --user --force-reinstall dist/*.whl
-	
+
 test:
 	poetry run pytest
 
