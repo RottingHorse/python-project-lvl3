@@ -6,3 +6,8 @@ DOT = '.'
 DASH = '-'
 SRC = 'src'
 HREF = 'href'
+ATTRIBUTES = {
+    'img': 'src',
+    'script': 'src',
+    'link': 'href',
+}

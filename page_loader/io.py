@@ -1,8 +1,6 @@
 """IO module."""
 import os
-from urllib.parse import urlparse
 
-from page_loader.constants import DASH, DIR_SUFFIX, DOT, HTML_SUFFIX, SLASH
 from page_loader.log import logger
 
 
@@ -14,10 +12,10 @@ def create_dir(files_dir_path: str):
     """
     if not os.path.exists(files_dir_path):
         os.makedirs(files_dir_path)
-        logger.info(f'Created directory {files_dir_path}')
+    logger.info(f'Created directory {files_dir_path}')
 
 
-def write_to_file(file_path: str, web_content, flag: str = 'w'):
+def write_to_file(file_path: str, web_content):
     """Do write text or image content to file.
 
     Args:
@@ -25,6 +23,9 @@ def write_to_file(file_path: str, web_content, flag: str = 'w'):
         web_content (str | bytes): Content to write
         flag (str): Write flag, for image sets to 'wb'. Defaults to 'w'.
     """
+    flag = 'w'
+    if isinstance(web_content, bytes):
+        flag = 'wb'
     with open(file_path, flag) as out_file:
         out_file.write(web_content)
-        logger.info(f'Content was written to file {file_path}')
+    logger.info(f'Content was written to file {file_path}')

@@ -1,13 +1,18 @@
 """Page loader main module."""
+from asyncio.log import logger
 import os
 
-from page_loader.constants import DIR_SUFFIX, HREF, SLASH, SRC
+from bs4 import BeautifulSoup
+from bs4.element import Tag
+import requests
+
+from page_loader.constants import ATTRIBUTES, DIR_SUFFIX, SLASH
 from page_loader.io import create_dir, write_to_file
 from page_loader.names import generate_url, make_file_name, make_paths, make_name
 from page_loader.web import get_from_url, make_soup
 
 
-def _download_resource(file_path: str, tag, base_url, attr):
+def _get_resource(file_path: str, tag: Tag, base_url, attr):
     try:
         res_path = tag[attr]
     except KeyError:
@@ -15,38 +20,26 @@ def _download_resource(file_path: str, tag, base_url, attr):
     res_url = generate_url(res_path, base_url)
     if res_url is None:
         return
-    progress_bar = Bar(res_url, max=100)
-
-    res_resp = get_from_url(res_url)
-    progress_bar.next(PROGRESS)
+    try:
+        res_content = get_from_url(res_url)
+    except requests.RequestException as err:
+        logger.info(err)
+        logger.warning(f'Unable to download {res_url}')
     res_path = make_file_name(res_path, tag, base_url)
-    progress_bar.next(PROGRESS)
     full_path = os.path.join(res_path, file_path, res_path)
-    if tag.name == 'img':
-        write_to_file(full_path, res_resp.content, flag='wb')
-    else:
-        write_to_file(full_path, res_resp.text)
-    progress_bar.next(PROGRESS)
-    tag[attr] = os.path.join(make_name(base_url, DIR_SUFFIX), res_path)
-    progress_bar.next(PROGRESS)
-    progress_bar.finish()
+    new_src = os.path.join(make_name(base_url, DIR_SUFFIX), res_path)
+    tag[attr] = new_src
+    return res_content, full_path
 
 
-def do_all_work(url: str, files_dir_path: str) -> str:
-
-    soup = make_soup(url)
-    if soup:
-        create_dir(files_dir_path)
-
-    for img in soup.find_all('img'):
-        _download_resource(files_dir_path, img, url.strip(SLASH), SRC)
-
-    for link in soup.find_all('link'):
-        _download_resource(files_dir_path, link, url.strip(SLASH), HREF)
-
-    for script in soup.find_all('script'):
-        _download_resource(files_dir_path, script, url.strip(SLASH), SRC)
-    return soup.prettify()
+def _get_tag(tag_name: str, soup: BeautifulSoup, files_dir_path: str, url: str):
+    attr_name = ATTRIBUTES[tag_name]
+    tags = []
+    for tag in soup.find_all(tag_name):
+        payload = _get_resource(files_dir_path, tag,
+                                url, attr_name)
+        tags.append(payload)
+    return tags
 
 
 def download(url: str, output: str = 'current') -> str:
@@ -59,11 +52,31 @@ def download(url: str, output: str = 'current') -> str:
     Returns:
         str: Path to saved file.
     """
-    files_dir_path, output_html_path = make_paths(output, url.strip(SLASH))
+    url = url.strip(SLASH)
+    files_dir_path, output_html_path = make_paths(output, url)
 
     soup = make_soup(url)
 
-    html_file = do_all_work(url, files_dir_path)
+    tags_content = []
 
-    write_to_file(output_html_path, html_file)
+    tags_content.extend(_get_tag('img', soup, files_dir_path, url))
+    tags_content.extend(_get_tag('link', soup, files_dir_path, url))
+    tags_content.extend(_get_tag('script', soup, files_dir_path, url))
+
+    html_file = soup.prettify()
+
+    create_dir(files_dir_path)
+
+    for tag in tags_content:
+        content_to_write, full_path = tag
+        try:
+            write_to_file(full_path, content_to_write)
+        except OSError as err:
+            logger.info(err)
+            logger.warning(f"Can't write file {full_path}")
+    try:
+        write_to_file(output_html_path, html_file)
+    except OSError as err:
+        logger.info(err)
+        logger.warning(f"Can't write file {output_html_path}")
     return output_html_path

@@ -14,9 +14,9 @@ def make_soup(url: str)-> BeautifulSoup:
     Returns:
         BeautifulSoup: BeautifulSoup from URL
     """
-    response = get_from_url(url)
+    raw_html = get_from_url(url)
     logger.info('BeautifulSoup was created')
-    return BeautifulSoup(response.text, 'html.parser')
+    return BeautifulSoup(raw_html, 'html.parser')
 
 
 def get_from_url(url: str) -> requests.Response:
@@ -26,9 +26,9 @@ def get_from_url(url: str) -> requests.Response:
         url (str): URL to download
 
     Returns:
-        requests.Response: Downloaded response object
+        requests.Response: Downloaded content
     """
     response = requests.get(url)
     response.raise_for_status()
     logger.info(f'Resource from {url} was downloaded')
-    return response
+    return response.content
