@@ -8,10 +8,16 @@ from page_loader.log import logger
 
 UNIVERSAL_CODE = 42
 
+
 def main():
     """Do run page loader."""
     parser = argparse.ArgumentParser(description='Load web page')
-    parser.add_argument('--output', help='set output folder', default='current')
+    parser.add_argument(
+        '-o',
+        '--output',
+        help='set output folder',
+        default='current',
+        )
     parser.add_argument('url')
 
     args = parser.parse_args()

@@ -35,8 +35,9 @@ def _get_resource(file_path: str, tag: Tag, base_url, attr):
 
 def _get_tag(tag_name: str, soup: BeautifulSoup, files_dir_path: str, url: str):
     attr_name = ATTRIBUTES[tag_name]
+    raw_tags = soup.find_all(tag_name)
     tags = []
-    for tag in soup.find_all(tag_name):
+    for tag in raw_tags:
         payload = _get_resource(files_dir_path, tag,
                                 url, attr_name)
         if payload is not None:
