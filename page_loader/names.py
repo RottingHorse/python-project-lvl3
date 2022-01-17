@@ -1,8 +1,8 @@
+"""Names module."""
 import os
 from urllib.parse import urlparse
+
 from bs4.element import Tag
-
-
 from page_loader.constants import DASH, DIR_SUFFIX, DOT, HTML_SUFFIX, SLASH
 
 
@@ -54,11 +54,11 @@ def _is_same_domain(link_url: str, page_url: str) -> bool:
 
 
 def generate_url(link: str, url: str) -> str:
-    """Do generate url from 'src' or 'href' attribute
+    """Do generate url from 'src' or 'href' attribute.
 
     Args:
         link (str): Link from attribute
-        url (src): Web page index URL
+        url (str): Web page index URL
 
     Returns:
         str: URL to download some resource
@@ -68,7 +68,9 @@ def generate_url(link: str, url: str) -> str:
     if urlparse(url).path == link:
         return url
     if not urlparse(link).scheme:
-        return f"{urlparse(url).scheme}://{urlparse(url).hostname}{link}"
+        scheme = urlparse(url).scheme
+        host = urlparse(url).hostname
+        return f'{scheme}://{host}{link}'
     if _is_same_domain(link, url):
         return link
     return None
@@ -85,11 +87,12 @@ def make_file_name(res_path: str, tag: Tag, base_url: str):
     Returns:
         str: Path to downloaded resource
     """
-    base_url = f'{urlparse(base_url).scheme}://{urlparse(base_url).hostname}'
-    if tag.name == 'script':
+    if _is_same_domain(res_path, base_url):
         return make_name(res_path)
-    else:
-        tail = res_path.replace(SLASH, DASH)
+    scheme = urlparse(base_url).scheme
+    host = urlparse(base_url).hostname
+    base_url = f'{scheme}://{host}'
+    tail = res_path.replace(SLASH, DASH)
     if res_path == urlparse(base_url).path:
         res_path = make_name(base_url)
     else:
