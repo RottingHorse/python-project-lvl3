@@ -24,7 +24,8 @@ def _get_resource(file_path: str, tag: Tag, base_url, attr):
         res_content = get_from_url(res_url)
     except requests.RequestException as err:
         logger.info(err)
-        logger.warning(f'Unable to download {res_url}')
+        logger.warning(f"Can't download from {res_url}")
+        return
     res_path = make_file_name(res_path, tag, base_url)
     full_path = os.path.join(res_path, file_path, res_path)
     new_src = os.path.join(make_name(base_url, DIR_SUFFIX), res_path)
@@ -38,7 +39,8 @@ def _get_tag(tag_name: str, soup: BeautifulSoup, files_dir_path: str, url: str):
     for tag in soup.find_all(tag_name):
         payload = _get_resource(files_dir_path, tag,
                                 url, attr_name)
-        tags.append(payload)
+        if payload is not None:
+            tags.append(payload)
     return tags
 
 
@@ -65,15 +67,15 @@ def download(url: str, output: str = 'current') -> str:
 
     html_file = soup.prettify()
 
-    create_dir(files_dir_path)
-
-    for tag in tags_content:
-        content_to_write, full_path = tag
-        try:
-            write_to_file(full_path, content_to_write)
-        except OSError as err:
-            logger.info(err)
-            logger.warning(f"Can't write file {full_path}")
+    if tags_content:
+        create_dir(files_dir_path)
+        for tag in tags_content:
+            content_to_write, full_path = tag
+            try:
+                write_to_file(full_path, content_to_write)
+            except OSError as err:
+                logger.info(err)
+                logger.warning(f"Can't write file {full_path}")
     try:
         write_to_file(output_html_path, html_file)
     except OSError as err:

@@ -32,6 +32,8 @@ def test_page_loader():
                      text=get_content('tests/fixtures/mock/style.css'))
             mock.get('https://ru.hexlet.io/packs/js/runtime.js',
                      text=get_content('tests/fixtures/mock/script.js'))
+            mock.get('https://ru.hexlet.io/no-resource.png',
+                     status_code=HTTPStatus.NOT_FOUND)
             download('https://ru.hexlet.io/', tempdir)
             received_html = get_content(
                 os.path.join(tempdir, 'ru-hexlet-io.html'))
@@ -49,30 +51,27 @@ def test_page_loader():
             assert os.path.isfile(os.path.join(
                 tempdir, 'ru-hexlet-io_files',
                 'ru-hexlet-io-courses.html'))
+            assert not os.path.isfile(os.path.join(
+                tempdir, 'ru-hexlet-io_files', 'ru-hexlet-io-no-resource.png'))
 
-            with pytest.raises(SystemExit) as err:
+            with pytest.raises(OSError):
                 download('https://ru.hexlet.io/', '/non_existing_dir')
-            assert err.value.code == 42
 
 
-def test_page_loader_with_errors(caplog):
+def test_page_loader_with_errors():
     with tempfile.TemporaryDirectory() as tempdir:
         with requests_mock.Mocker() as mock:
             mock.get('https://ru.hexlet.io', status_code=HTTPStatus.NOT_FOUND)
-            with caplog.at_level(logging.ERROR):
+            assert not os.listdir(tempdir)
+            with pytest.raises(requests.RequestException):
                 download('https://ru.hexlet.io', tempdir)
-            assert 'None for url' in caplog.text
+            assert not os.listdir(tempdir)
 
 
-def test_bad_url():
+def test_empty_page():
     with tempfile.TemporaryDirectory() as tempdir:
         with requests_mock.Mocker() as mock:
-            invalid_url = 'https://badsite.com'
-            mock.get(invalid_url, exc=requests.exceptions.ConnectionError)
-
-            assert not os.listdir(tempdir)
-
-            with pytest.raises(Exception):
-                download(invalid_url, tempdir)
-
-            assert not os.listdir(tempdir)
+            mock.get('https://empty.com', text='<html></html>')
+            download('https://empty.com', tempdir)
+            assert os.path.isfile(os.path.join(tempdir, 'empty-com.html'))
+            assert not os.path.isdir(os.path.join(tempdir, 'empty-com_files'))
