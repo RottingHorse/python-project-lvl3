@@ -65,6 +65,8 @@ def generate_url(link: str, url: str) -> str:
     """
     if 'jquery' in link:
         return None
+    if urlparse(url).path == link:
+        return url
     if not urlparse(link).scheme:
         return url + link
     if _is_same_domain(link, url):
@@ -84,10 +86,13 @@ def make_file_name(res_path: str, tag: Tag, base_url: str):
         str: Path to downloaded resource
     """
     if tag.name == 'script':
-        tail = urlparse(res_path).path.replace(SLASH, DASH)
+        return make_name(res_path)
     else:
         tail = res_path.replace(SLASH, DASH)
-    res_path = make_name(base_url) + tail
+    if res_path == urlparse(base_url).path:
+        res_path = make_name(base_url)
+    else:
+        res_path = make_name(base_url) + tail
     if tag.name == 'link' and DOT not in res_path:
         res_path += HTML_SUFFIX
     return res_path
