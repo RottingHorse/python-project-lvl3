@@ -11,7 +11,7 @@ def create_dir(files_dir_path: str):
         files_dir_path (str): Path to create directories
     """
     if not os.path.exists(files_dir_path):
-        os.makedirs(files_dir_path)
+        os.mkdir(files_dir_path)
     logger.info(f'Created directory {files_dir_path}')
 
 

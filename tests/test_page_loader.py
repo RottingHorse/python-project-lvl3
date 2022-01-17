@@ -57,10 +57,10 @@ def test_page_loader():
             assert not os.path.isfile(os.path.join(
                 tempdir, FILES_DIR, 'ru-hexlet-io-no-resource.png'))
 
-            with pytest.raises(OSError):
-                assert download(MAIN_URL + PATH, '/non_existing_dir')
+            with pytest.raises(OSError) as err:
+                download(MAIN_URL + PATH, '/non_existing_dir')
 
-            with pytest.raises(Exception):
+            with pytest.raises(OSError):
                 assert download(MAIN_URL + PATH, '/opt')
 
 
