@@ -13,7 +13,8 @@ logger = logging.getLogger()
 
 HTML_FILE = 'ru-hexlet-io-courses.html'
 FILES_DIR = 'ru-hexlet-io-courses_files'
-MAIN_URL = 'https://ru.hexlet.io/courses'
+MAIN_URL = 'https://ru.hexlet.io'
+PATH = '/courses'
 
 
 def get_content(path_to_file, flag='r'):
@@ -25,51 +26,51 @@ def test_page_loader():
     with tempfile.TemporaryDirectory() as tempdir:
         correct_html = get_content('tests/fixtures/correct_result.html')
         with requests_mock.Mocker() as mock:
-            mock.get(MAIN_URL,
+            mock.get(MAIN_URL + PATH,
                      text=get_content('tests/fixtures/mock/HTML.html'))
             mock.get(
                 MAIN_URL + '/assets/professions/nodejs.png',
                 content=get_content('tests/fixtures/mock/nodejs.png', 'rb'))
             mock.get(MAIN_URL + '/assets/application.css',
                      text=get_content('tests/fixtures/mock/style.css'))
-            mock.get('https://ru.hexlet.io/packs/js/runtime.js',
+            mock.get(MAIN_URL + '/packs/js/runtime.js',
                      text=get_content('tests/fixtures/mock/script.js'))
             mock.get(MAIN_URL + '/no-resource.png',
                      status_code=HTTPStatus.NOT_FOUND)
-            download(MAIN_URL, tempdir)
+            download(MAIN_URL + PATH, tempdir)
             received_html = get_content(
                 os.path.join(tempdir, HTML_FILE))
 
             assert received_html == correct_html
             assert os.path.isfile(os.path.join(
                 tempdir, FILES_DIR,
-                'ru-hexlet-io-courses-assets-professions-nodejs.png'))
+                'ru-hexlet-io-assets-professions-nodejs.png'))
             assert os.path.isfile(os.path.join(
                 tempdir, FILES_DIR,
                 'ru-hexlet-io-packs-js-runtime.js'))
             assert os.path.isfile(os.path.join(
                 tempdir, FILES_DIR,
-                'ru-hexlet-io-courses-assets-application.css'))
+                'ru-hexlet-io-assets-application.css'))
             assert os.path.isfile(os.path.join(
                 tempdir, FILES_DIR,
                 'ru-hexlet-io-courses.html'))
             assert not os.path.isfile(os.path.join(
-                tempdir, FILES_DIR, 'ru-hexlet-io-courses-no-resource.png'))
+                tempdir, FILES_DIR, 'ru-hexlet-io-no-resource.png'))
 
             with pytest.raises(OSError):
-                assert download(MAIN_URL, '/non_existing_dir')
+                assert download(MAIN_URL + PATH, '/non_existing_dir')
 
             with pytest.raises(Exception):
-                assert download(MAIN_URL, '/opt')
+                assert download(MAIN_URL + PATH, '/opt')
 
 
 def test_page_loader_with_errors():
     with tempfile.TemporaryDirectory() as tempdir:
         with requests_mock.Mocker() as mock:
-            mock.get(MAIN_URL, status_code=HTTPStatus.NOT_FOUND)
+            mock.get(MAIN_URL + PATH, status_code=HTTPStatus.NOT_FOUND)
             assert not os.listdir(tempdir)
             with pytest.raises(requests.RequestException):
-                download(MAIN_URL, tempdir)
+                download(MAIN_URL + PATH, tempdir)
             assert not os.listdir(tempdir)
 
 

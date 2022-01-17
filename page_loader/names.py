@@ -19,7 +19,7 @@ def make_name(url: str, end: str = '') -> str:
     parsed_url = urlparse(url)
 
     return '{0}{1}{2}'.format(
-        parsed_url.netloc.replace(DOT, DASH),
+        parsed_url.hostname.replace(DOT, DASH),
         parsed_url.path.replace(SLASH, DASH),
         end,
     )
@@ -50,7 +50,7 @@ def make_paths(output: str, url: str):
 def _is_same_domain(link_url: str, page_url: str) -> bool:
     parsed_link = urlparse(link_url)
     parsed_page = urlparse(page_url)
-    return parsed_link.netloc == parsed_page.netloc
+    return parsed_link.hostname == parsed_page.hostname
 
 
 def generate_url(link: str, url: str) -> str:
@@ -68,7 +68,7 @@ def generate_url(link: str, url: str) -> str:
     if urlparse(url).path == link:
         return url
     if not urlparse(link).scheme:
-        return url + link
+        return f"{urlparse(url).scheme}://{urlparse(url).hostname}{link}"
     if _is_same_domain(link, url):
         return link
     return None
@@ -85,6 +85,7 @@ def make_file_name(res_path: str, tag: Tag, base_url: str):
     Returns:
         str: Path to downloaded resource
     """
+    base_url = f'{urlparse(base_url).scheme}://{urlparse(base_url).hostname}'
     if tag.name == 'script':
         return make_name(res_path)
     else:
