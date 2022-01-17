@@ -71,10 +71,7 @@ def download(url: str, output: str = 'current') -> str:
         create_dir(files_dir_path)
         for tag in tags_content:
             content_to_write, full_path = tag
-            try:
-                write_to_file(full_path, content_to_write)
-            except OSError as err:
-                logger.info(err)
-                logger.warning(f"Can't write file {full_path}")
+            write_to_file(full_path, content_to_write)
+
     write_to_file(output_html_path, html_file)
     return output_html_path
