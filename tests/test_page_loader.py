@@ -55,7 +55,10 @@ def test_page_loader():
                 tempdir, 'ru-hexlet-io_files', 'ru-hexlet-io-no-resource.png'))
 
             with pytest.raises(OSError):
-                download('https://ru.hexlet.io/', '/non_existing_dir')
+                assert download('https://ru.hexlet.io/', '/non_existing_dir')
+
+            with pytest.raises(Exception):
+                assert download('https://ru.hexlet.io/', '/opt')
 
 
 def test_page_loader_with_errors():

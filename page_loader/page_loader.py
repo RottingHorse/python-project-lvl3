@@ -76,9 +76,5 @@ def download(url: str, output: str = 'current') -> str:
             except OSError as err:
                 logger.info(err)
                 logger.warning(f"Can't write file {full_path}")
-    try:
-        write_to_file(output_html_path, html_file)
-    except OSError as err:
-        logger.info(err)
-        logger.warning(f"Can't write file {output_html_path}")
+    write_to_file(output_html_path, html_file)
     return output_html_path
