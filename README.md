@@ -52,3 +52,6 @@ $ page-loader --output /var/tmp https://ru.hexlet.io/courses
 [![asciicast](https://asciinema.org/a/462465.svg)](https://asciinema.org/a/462465)
 ### As a library:
 [![asciicast](https://asciinema.org/a/462466.svg)](https://asciinema.org/a/462466)
+
+### questions and suggestions:
+<minichev.s.l@gmail.com>
