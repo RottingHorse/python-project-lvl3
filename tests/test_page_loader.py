@@ -65,9 +65,6 @@ def test_page_loader():
             with pytest.raises(Exception):
                 download(MAIN_URL + PATH, tempdir + "/non_existing_dir")
 
-            with pytest.raises(Exception):
-                download(MAIN_URL + PATH, "/opt")
-
 
 def test_page_loader_with_errors():
     with tempfile.TemporaryDirectory() as tempdir:
