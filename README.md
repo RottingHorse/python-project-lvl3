@@ -48,4 +48,7 @@ $ page-loader --output /var/tmp https://ru.hexlet.io/courses
 
 ## Example:
 
-[![asciicast](https://asciinema.org/a/462073.svg)](https://asciinema.org/a/462073)
+### As a package:
+[![asciicast](https://asciinema.org/a/462465.svg)](https://asciinema.org/a/462465)
+### As a library:
+[![asciicast](https://asciinema.org/a/462466.svg)](https://asciinema.org/a/462466)
