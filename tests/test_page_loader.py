@@ -62,10 +62,10 @@ def test_page_loader():
                 os.path.join(tempdir, FILES_DIR, "ru-hexlet-io-no-resource.png")
             )
 
-            with pytest.raises(OSError):
-                download(MAIN_URL + PATH, "/non_existing_dir")
+            with pytest.raises(Exception):
+                download(MAIN_URL + PATH, tempdir + "/non_existing_dir")
 
-            with pytest.raises(OSError):
+            with pytest.raises(Exception):
                 download(MAIN_URL + PATH, "/opt")
 
 
