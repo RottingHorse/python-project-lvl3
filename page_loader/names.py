@@ -6,7 +6,7 @@ from bs4.element import Tag
 from page_loader.constants import DASH, DIR_SUFFIX, DOT, HTML_SUFFIX, SLASH
 
 
-def make_name(url: str, end: str = '') -> str:
+def make_name(url: str, end: str = "") -> str:
     """Do make filename or directory name from URL, depends on end.
 
     Args:
@@ -18,7 +18,7 @@ def make_name(url: str, end: str = '') -> str:
     """
     parsed_url = urlparse(url)
 
-    return '{0}{1}{2}'.format(
+    return "{0}{1}{2}".format(
         parsed_url.hostname.replace(DOT, DASH),
         parsed_url.path.replace(SLASH, DASH),
         end,
@@ -35,7 +35,7 @@ def make_paths(output: str, url: str):
     Returns:
         tuple(str): Directory path, HTML file path
     """
-    if output == 'current':
+    if output == "current":
         output_html_path = os.path.join(
             os.getcwd(),
             make_name(url, HTML_SUFFIX),
@@ -63,14 +63,14 @@ def generate_url(link: str, url: str) -> str:
     Returns:
         str: URL to download some resource
     """
-    if 'jquery' in link:
+    if "jquery" in link:
         return None
     if urlparse(url).path == link:
         return url
     if not urlparse(link).scheme:
         scheme = urlparse(url).scheme
         host = urlparse(url).hostname
-        return f'{scheme}://{host}{link}'
+        return f"{scheme}://{host}{link}"
     if _is_same_domain(link, url):
         return link
     return None
@@ -91,12 +91,12 @@ def make_file_name(res_path: str, tag: Tag, base_url: str):
         return make_name(res_path)
     scheme = urlparse(base_url).scheme
     host = urlparse(base_url).hostname
-    base_url = f'{scheme}://{host}'
+    base_url = f"{scheme}://{host}"
     tail = res_path.replace(SLASH, DASH)
     if res_path == urlparse(base_url).path:
         res_path = make_name(base_url)
     else:
         res_path = make_name(base_url) + tail
-    if tag.name == 'link' and DOT not in res_path:
+    if tag.name == "link" and DOT not in res_path:
         res_path += HTML_SUFFIX
     return res_path

@@ -12,7 +12,7 @@ def create_dir(files_dir_path: str):
     """
     if not os.path.exists(files_dir_path):
         os.mkdir(files_dir_path)
-    logger.info(f'Created directory {files_dir_path}')
+    logger.info(f"Created directory {files_dir_path}")
 
 
 def write_to_file(file_path: str, web_content):
@@ -21,11 +21,10 @@ def write_to_file(file_path: str, web_content):
     Args:
         file_path (str): Path to result file
         web_content (str | bytes): Content to write
-        flag (str): Write flag, for image sets to 'wb'. Defaults to 'w'.
     """
-    flag = 'w'
+    flag = "w"
     if isinstance(web_content, bytes):
-        flag = 'wb'
+        flag = "wb"
     with open(file_path, flag) as out_file:
         out_file.write(web_content)
-    logger.info(f'Content was written to file {file_path}')
+    logger.info(f"Content was written to file {file_path}")

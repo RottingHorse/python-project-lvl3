@@ -20,6 +20,7 @@ pytest = "^6.2.5"
 pytest-cov = "^3.0.0"
 wemake-python-styleguide = "^0.16.0"
 requests-mock = "^1.9.3"
+black = "^21.12b0"
 
 [tool.poetry.scripts]
 page-loader = "page_loader.scripts.page_loader_script:main"

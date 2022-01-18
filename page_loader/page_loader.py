@@ -38,7 +38,7 @@ def _get_resource(file_path: str, tag: Tag, base_url, attr):
 
 
 def _get_tags(tags, files_dir_path: str, url: str):
-    progress_bar = ChargingBar(message=f'Loading {url}', max=len(tags))
+    progress_bar = ChargingBar(message=f"Loading {url}", max=len(tags))
     tags_content = []
     for tag in tags:
         attr_name = ATTRIBUTES[tag.name]
@@ -50,7 +50,7 @@ def _get_tags(tags, files_dir_path: str, url: str):
     return tags_content
 
 
-def download(url: str, output: str = 'current') -> str:
+def download(url: str, output: str = "current") -> str:
     """Do load web page and save to html file.
 
     Args:
@@ -65,10 +65,10 @@ def download(url: str, output: str = 'current') -> str:
     soup = make_soup(url.strip(SLASH))
 
     tags_content = _get_tags(
-        soup.find_all(['img', 'link', 'script']),
+        soup.find_all(["img", "link", "script"]),
         files_dir_path,
         url.strip(SLASH),
-        )
+    )
 
     if tags_content:
         create_dir(files_dir_path)

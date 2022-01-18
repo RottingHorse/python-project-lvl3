@@ -1,12 +1,11 @@
 """Web module."""
 import requests
 from bs4 import BeautifulSoup
-
 from page_loader.log import logger
 
 
-def make_soup(url: str)-> BeautifulSoup:
-    """Do make BeautifulSoup from URL
+def make_soup(url: str) -> BeautifulSoup:
+    """Do make BeautifulSoup from URL.
 
     Args:
         url (str): Web page URL
@@ -20,7 +19,7 @@ def make_soup(url: str)-> BeautifulSoup:
 
 
 def get_from_url(url: str) -> requests.Response:
-    """Do download any resource from URL
+    """Do download any resource from URL.
 
     Args:
         url (str): URL to download
