@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from page_loader.log import logger
 
 
-def make_soup(url: str) -> BeautifulSoup:
+def _make_soup(url: str) -> BeautifulSoup:
     """Do make BeautifulSoup from URL.
 
     Args:
@@ -13,12 +13,12 @@ def make_soup(url: str) -> BeautifulSoup:
     Returns:
         BeautifulSoup: BeautifulSoup from URL
     """
-    raw_html = get_from_url(url)
+    raw_html = _get_from_url(url)
     logger.info('BeautifulSoup was created')
     return BeautifulSoup(raw_html, 'html.parser')
 
 
-def get_from_url(url: str) -> requests.Response:
+def _get_from_url(url: str) -> requests.Response:
     """Do download any resource from URL.
 
     Args:
@@ -31,3 +31,8 @@ def get_from_url(url: str) -> requests.Response:
     response.raise_for_status()
     logger.info(f'Resource from {url} was downloaded')
     return response.content
+
+def prepare(url: str, files_dir_path: str):
+    resources = []
+    html_file = ""
+    return html_file, resources
