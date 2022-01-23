@@ -1,6 +1,6 @@
 import os
-import tempfile
 from http import HTTPStatus
+import tempfile
 
 import pytest
 import requests
@@ -31,9 +31,9 @@ test_data = [
 ]
 
 
-@pytest.fixture(name="folder", scope="session")
-def folder_with_files(tmpdir_factory):
-    tempdir = tmpdir_factory
+@pytest.fixture(name="folder")
+def folder_with_files(tmpdir):
+    tempdir = tmpdir.mkdir("sub")
     with requests_mock.Mocker() as mock:
         mock.get(MAIN_URL + PATH, text=main_html)
         mock.get(
