@@ -29,6 +29,7 @@ def download(url: str, output: str = "current") -> str:
             except Exception as err:
                 logger.info(err)
                 logger.warning(f"Can't download from {res_url}")
+                continue
             if file_content:
                 write_to_file(file_path, file_content)
 

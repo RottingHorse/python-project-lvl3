@@ -50,7 +50,8 @@ def _write_new_src(tag: Tag, new_src: str):
 
 
 def prepare(url: str, files_dir_path: str) -> tuple[str, tuple]:
-    """Do download HTML file, find all tags with resources, changes resource tags with local sources.
+    """Do download HTML file, find all tags with resources,
+    changes resource tags with local sources.
 
     Args:
         url (str): URL to download
