@@ -4,6 +4,7 @@ from page_loader.io import create_dir, write_to_file
 from page_loader.log import logger
 from page_loader.names import make_paths
 from page_loader.web import get_from_url, prepare
+from progress.bar import ChargingBar
 
 
 def download(url: str, output: str = "current") -> str:
@@ -22,8 +23,10 @@ def download(url: str, output: str = "current") -> str:
 
     if resources:
         create_dir(files_dir_path)
-
+        progress_bar = ChargingBar(max=len(resources))
         for res_url, file_path in resources:
+            progress_bar.message = f"{res_url}\n"
+            progress_bar.next()
             try:
                 file_content = get_from_url(res_url)
             except Exception as err:
@@ -32,5 +35,6 @@ def download(url: str, output: str = "current") -> str:
                 continue
             if file_content:
                 write_to_file(file_path, file_content)
+        progress_bar.finish()
 
     return output_html_path
