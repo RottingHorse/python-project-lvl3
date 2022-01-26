@@ -1,6 +1,8 @@
 """Logging module."""
 import logging
 
-FORMAT = "\n%(message)s"
-logging.basicConfig(level=logging.WARNING, format=FORMAT)
-logger = logging.getLogger()
+
+def setup_log():
+    """Do setup logging."""
+    fmt = "\n%(message)s"
+    logging.basicConfig(level=logging.WARNING, format=fmt)

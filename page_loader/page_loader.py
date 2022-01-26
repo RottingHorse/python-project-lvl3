@@ -1,24 +1,42 @@
 """Page loader main module."""
+import logging
+from typing import Union
+
+import requests
+from page_loader import url
 from page_loader.constants import SLASH
+from page_loader.html import prepare
 from page_loader.io import create_dir, write_to_file
-from page_loader.log import logger
-from page_loader.names import make_paths
-from page_loader.web import get_from_url, prepare
 from progress.bar import ChargingBar
 
 
-def download(url: str, output: str = "current") -> str:
+def _get(address: str) -> Union[str, bytes]:
+    response = requests.get(address)
+    response.raise_for_status()
+    logging.info(f"Resource from {address} was downloaded")
+    return response.content
+
+
+def download(address: str, output: str = "current") -> str:
     """Do load web page and save to html file.
 
     Args:
-        url (str): URL of requested web page.
+        address (str): URL of requested web page.
         output (str): Path to directory to save.
 
     Returns:
         str: Path to saved file.
     """
-    files_dir_path, output_html_path = make_paths(output, url.strip(SLASH))
-    html_file, resources = prepare(url.strip(SLASH), files_dir_path)
+    files_dir_path, output_html_path = url.to_paths(
+        output,
+        address.strip(SLASH),
+    )
+    raw_html = _get(address.strip(SLASH))
+    html_file, resources = prepare(
+        raw_html,
+        files_dir_path,
+        address.strip(SLASH),
+    )
     write_to_file(output_html_path, html_file)
 
     if resources:
@@ -28,10 +46,10 @@ def download(url: str, output: str = "current") -> str:
             progress_bar.message = f"{res_url}\n"
             progress_bar.next()
             try:
-                file_content = get_from_url(res_url)
+                file_content = _get(res_url)
             except Exception as err:
-                logger.info(err)
-                logger.warning(f"Can't download from {res_url}")
+                logging.info(err)
+                logging.warning(f"Can't download from {res_url}")
                 continue
             if file_content:
                 write_to_file(file_path, file_content)

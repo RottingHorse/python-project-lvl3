@@ -1,12 +1,13 @@
 """Names module."""
 import os
+from typing import Optional
 from urllib.parse import urlparse
 
 from bs4.element import Tag
 from page_loader.constants import DASH, DIR_SUFFIX, DOT, HTML_SUFFIX, SLASH
 
 
-def make_name(url: str, end: str = "") -> str:
+def to_file_or_dir(url: str, end: str = "") -> str:
     """Do make filename or directory name from URL, depends on end.
 
     Args:
@@ -25,7 +26,7 @@ def make_name(url: str, end: str = "") -> str:
     )
 
 
-def make_paths(output: str, url: str):
+def to_paths(output: str, url: str) -> tuple[str, str]:
     """Do make paths for output HTML file and directory for files.
 
     Args:
@@ -38,12 +39,18 @@ def make_paths(output: str, url: str):
     if output == "current":
         output_html_path = os.path.join(
             os.getcwd(),
-            make_name(url, HTML_SUFFIX),
+            to_file_or_dir(url, HTML_SUFFIX),
         )
-        files_dir_path = os.path.join(os.getcwd(), make_name(url, DIR_SUFFIX))
+        files_dir_path = os.path.join(
+            os.getcwd(),
+            to_file_or_dir(url, DIR_SUFFIX),
+        )
     else:
-        output_html_path = os.path.join(output, make_name(url, HTML_SUFFIX))
-        files_dir_path = os.path.join(output, make_name(url, DIR_SUFFIX))
+        output_html_path = os.path.join(
+            output,
+            to_file_or_dir(url, HTML_SUFFIX),
+        )
+        files_dir_path = os.path.join(output, to_file_or_dir(url, DIR_SUFFIX))
     return files_dir_path, output_html_path
 
 
@@ -53,7 +60,7 @@ def _is_same_domain(link_url: str, page_url: str) -> bool:
     return parsed_link.hostname == parsed_page.hostname
 
 
-def generate_url(link: str, url: str) -> str:
+def to_url(link: str, url: str) -> Optional[str]:
     """Do generate url from 'src' or 'href' attribute.
 
     Args:
@@ -76,7 +83,7 @@ def generate_url(link: str, url: str) -> str:
     return None
 
 
-def make_file_name(res_path: str, tag: Tag, base_url: str):
+def to_file_name(res_path: str, tag: Tag, base_url: str) -> str:
     """Do make file name for downloaded resource.
 
     Args:
@@ -88,15 +95,15 @@ def make_file_name(res_path: str, tag: Tag, base_url: str):
         str: Path to downloaded resource
     """
     if _is_same_domain(res_path, base_url):
-        return make_name(res_path)
+        return to_file_or_dir(res_path)
     scheme = urlparse(base_url).scheme
     host = urlparse(base_url).hostname
     base_url = f"{scheme}://{host}"
     tail = res_path.replace(SLASH, DASH)
     if res_path == urlparse(base_url).path:
-        res_path = make_name(base_url)
+        res_path = to_file_or_dir(base_url)
     else:
-        res_path = make_name(base_url) + tail
+        res_path = to_file_or_dir(base_url) + tail
     if tag.name == "link" and DOT not in res_path:
         res_path += HTML_SUFFIX
     return res_path

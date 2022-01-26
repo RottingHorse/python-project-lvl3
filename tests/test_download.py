@@ -5,7 +5,6 @@ import tempfile
 import pytest
 import requests
 import requests_mock
-
 from page_loader.page_loader import download
 from tests.reader import get_content
 
@@ -31,54 +30,48 @@ test_data = [
 ]
 
 
-@pytest.fixture(name="folder")
-def folder_with_files(tmpdir):
-    tempdir = tmpdir.mkdir("sub")
-    with requests_mock.Mocker() as mock:
-        mock.get(MAIN_URL + PATH, text=main_html)
-        mock.get(
-            MAIN_URL + "/assets/professions/nodejs.png",
-            content=png,
-        )
-        mock.get(
-            MAIN_URL + "/assets/application.css",
-            text=css,
-        )
-        mock.get(
-            MAIN_URL + "/packs/js/runtime.js",
-            text=js,
-        )
-        mock.get(
-            MAIN_URL + "/no-resource.png",
-            status_code=HTTPStatus.NOT_FOUND,
-        )
-
-        download(MAIN_URL + PATH, tempdir)
-    return tempdir
-
-
-def test_html_and_folder(folder):
-    correct_html = get_content("tests/fixtures/correct_result.html", "r")
-    received_html = get_content(os.path.join(folder, HTML_FILE), "r")
-
-    assert received_html == correct_html
-
-    files_count = len(os.listdir(os.path.join(folder, FILES_DIR)))
-    assert files_count == FILES_COUNT
-
-
 @pytest.mark.parametrize("file, file_name, flag", test_data)
-def test_downloaded_files(file, file_name, flag, folder):
-    file_path = os.path.join(folder, FILES_DIR, file_name)
-    assert os.path.isfile(file_path)
-    assert file == get_content(file_path, flag)
+def test_html_and_folder(file, file_name, flag):
+    with tempfile.TemporaryDirectory() as tempdir:
+        with requests_mock.Mocker() as mock:
+            mock.get(MAIN_URL + PATH, text=main_html)
+            mock.get(
+                MAIN_URL + "/assets/professions/nodejs.png",
+                content=png,
+            )
+            mock.get(
+                MAIN_URL + "/assets/application.css",
+                text=css,
+            )
+            mock.get(
+                MAIN_URL + "/packs/js/runtime.js",
+                text=js,
+            )
+            mock.get(
+                MAIN_URL + "/no-resource.png",
+                status_code=HTTPStatus.NOT_FOUND,
+            )
+            download(MAIN_URL + PATH, tempdir)
+
+            correct_html = get_content("tests/fixtures/correct_result.html", "r")
+            received_html = get_content(os.path.join(tempdir, HTML_FILE), "r")
+
+            assert received_html == correct_html
+
+            files_count = len(os.listdir(os.path.join(tempdir, FILES_DIR)))
+            assert files_count == FILES_COUNT
+
+            file_path = os.path.join(tempdir, FILES_DIR, file_name)
+            assert os.path.isfile(file_path)
+            assert file == get_content(file_path, flag)
 
 
-def test_non_existing_dir(folder):
-    with requests_mock.Mocker() as mock:
-        mock.get(MAIN_URL, text="<html></html>")
-        with pytest.raises(Exception):
-            download(MAIN_URL, folder + "/non_existing_dir")
+def test_non_existing_dir():
+    with tempfile.TemporaryDirectory() as tempdir:
+        with requests_mock.Mocker() as mock:
+            mock.get(MAIN_URL, text="<html></html>")
+            with pytest.raises(Exception):
+                download(MAIN_URL, tempdir + "/non_existing_dir")
 
 
 def test_download_with_errors():

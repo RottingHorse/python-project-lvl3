@@ -1,5 +1,5 @@
 import pytest
-from page_loader.names import make_paths
+from page_loader import url
 
 FAKE_DIR_PATH = "/some_dir"
 test_data = [
@@ -22,8 +22,11 @@ test_data = [
 
 
 @pytest.mark.parametrize(
-    "url, html_file_name, files_dir_name",
+    "address, html_file_name, files_dir_name",
     test_data,
 )
-def test_generated_html_name(url, html_file_name, files_dir_name) -> bool:
-    assert files_dir_name, html_file_name == make_paths(FAKE_DIR_PATH, url)
+def test_generated_html_name(address, html_file_name, files_dir_name):
+    assert files_dir_name, html_file_name == url.to_paths(
+        FAKE_DIR_PATH,
+        address,
+    )
