@@ -20,10 +20,9 @@ jobs:
         run: |
           pip install poetry
           make install
-          chmod +x page_loader/scripts/page_loader_script.py
-      - name: Run linter and pytest
+      - name: Run linter
         run: |
-          make check
+          make lint
       - name: Test & publish code coverage
         uses: paambaati/codeclimate-action@v3.0.0
         env:

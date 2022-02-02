@@ -16,11 +16,11 @@ MOCK_DIR = "tests/fixtures/mock/"
 PATH = "/courses"
 
 
-main_html = get_content(MOCK_DIR + "HTML.html", "r")
-inner_html = get_content(MOCK_DIR + "inner.html", "r")
-png = get_content(MOCK_DIR + "nodejs.png", "rb")
-css = get_content(MOCK_DIR + "style.css", "r")
-js = get_content(MOCK_DIR + "script.js", "r")
+main_html = get_content(os.path.join(MOCK_DIR, "HTML.html"), "r")
+inner_html = get_content(os.path.join(MOCK_DIR, "inner.html"), "r")
+png = get_content(os.path.join(MOCK_DIR, "nodejs.png"), "rb")
+css = get_content(os.path.join(MOCK_DIR, "style.css"), "r")
+js = get_content(os.path.join(MOCK_DIR, "script.js"), "r")
 
 test_data = [
     (png, "ru-hexlet-io-assets-professions-nodejs.png", "rb"),
