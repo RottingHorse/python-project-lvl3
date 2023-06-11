@@ -12,7 +12,7 @@
 ## Installation:
 
 ```bash
-pip install --user git+https://github.com/EvilMadSquirrel/python-project-lvl3
+pip install --user git+https://github.com/RottingHorse/python-project-lvl3
 ```
 
 ## Usage
